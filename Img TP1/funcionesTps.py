@@ -666,7 +666,7 @@ def filtro_mediana_ponderada(imagen_pil, pesos=None):
         return np.median(repetidos)
 
     return aplicar_ventana_deslizante(imagen_pil, tam, mediana_ponderada)
-
+#
 # Máscara Gaussiana
 
 def crear_mascara_gaussiana(sigma=1, tam=3):
