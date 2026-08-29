@@ -595,7 +595,7 @@ def aplicar_ventana_deslizante(imagen_pil, tam, funcion_filtro):
         np.clip(resultado,0,255)
         .astype(np.uint8)
     )
-
+#
 # Filtro de media
 
 def filtro_media(imagen_pil, tam=3):
@@ -629,6 +629,43 @@ def filtro_mediana(imagen_pil, tam=3):
         tam,
         lambda ventana: np.median(ventana)
     )
+    
+# Filtro mediana Ponderada
+
+def filtro_mediana_ponderada(imagen_pil, pesos=None):
+    """
+    Mediana ponderada.
+    Por defecto usa la matriz del material:
+        1 2 1
+        2 4 2
+        1 2 1
+    """
+    if pesos is None:
+        pesos = np.array(
+            [[1, 2, 1],
+             [2, 4, 2],
+             [1, 2, 1]],
+            dtype=np.int32,
+        )
+    pesos = np.asarray(pesos)
+
+    if pesos.ndim != 2 or pesos.shape[0] != pesos.shape[1]:
+        raise ValueError("La matriz de pesos debe ser cuadrada.")
+    if pesos.shape[0] % 2 == 0:
+        raise ValueError("La matriz de pesos debe tener tamaño impar.")
+    if np.any(pesos < 0) or not np.all(np.equal(pesos, np.floor(pesos))):
+        raise ValueError("Los pesos deben ser enteros no negativos.")
+    if pesos.sum() == 0:
+        raise ValueError("La matriz de pesos no puede sumar 0.")
+
+    pesos = pesos.astype(np.int32)
+    tam = pesos.shape[0]
+
+    def mediana_ponderada(ventana):
+        repetidos = np.repeat(ventana.ravel(), pesos.ravel())
+        return np.median(repetidos)
+
+    return aplicar_ventana_deslizante(imagen_pil, tam, mediana_ponderada)
 
 # Máscara Gaussiana
 
